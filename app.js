@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 //Mongo Connection
-mongoose.connect("mongodb://localhost:27017/wikiDB", {useNewUrlParser: true});
+mongoose.connect("mongodb://localhost:27017/wikiDB", {useNewUrlParser: true, useUnifiedTopology: true});
 //Schema
 const articleSchema = {
     title: String,
@@ -24,7 +24,27 @@ const articleSchema = {
 
 // @ts-ignore
 const Article = mongoose.model("Article", articleSchema);
-//TODO
+//GET
+app.get("/articles",(req,res) => {
+    Article.find((err,foundItems)=>{
+        if (err) throw err;
+        res.send(foundItems);
+    });
+});
+
+app.post("/articles", (req,res)=>{
+    const newArticle = new Article({
+        title: req.body.title,
+        content: req.body.content
+    });
+    newArticle.save(err => {
+        if (err) {
+            res.send(err);
+        }else {
+            res.send("Successfullyy added a new article")
+        }
+    });
+});
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");
